@@ -14,5 +14,7 @@
 
 (see also transcripts folder - maybe you can use these files to chat?)
 
+Use https://www.youtube-transcript.io to transcribe the videos.
+
 
 

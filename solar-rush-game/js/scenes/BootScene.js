@@ -39,51 +39,68 @@ class BootScene extends Phaser.Scene {
             loadingText.destroy();
         });
         
-        // Bilder laden
-        this.load.image('background', 'assets/images/background.png');
-        this.load.image('solar-panel', 'assets/images/solar-panel.png');
-        this.load.image('wind-turbine', 'assets/images/wind-turbine.png');
-        this.load.image('hydro-dam', 'assets/images/hydro-dam.png');
-        this.load.image('energy-token', 'assets/images/energy-token.png');
-        this.load.image('storm-cloud', 'assets/images/storm-cloud.png');
-        this.load.image('button', 'assets/images/button.png');
-        this.load.image('overview', 'assets/images/overview.jpg');
+        // Bilder direkt als Base64 laden
+        this.loadBase64Images();
         
-        // Audio laden
-        this.load.audio('collect', 'assets/audio/collect.mp3');
-        this.load.audio('warning', 'assets/audio/warning.mp3');
-        this.load.audio('repair', 'assets/audio/repair.mp3');
-        this.load.audio('background-music', 'assets/audio/background-music.mp3');
+        // Audio direkt als Base64 laden
+        this.loadBase64Audio();
         
-        // Platzhalter-Assets erstellen, falls keine vorhanden sind
-        this.createPlaceholderAssets();
+        // Hinweis: Wir verwenden jetzt direkt Base64-kodierte Assets
     }
 
     create() {
         this.scene.start('MenuScene');
     }
     
-    // Erstellt einfache Platzhalter-Assets, falls keine vorhanden sind
-    createPlaceholderAssets() {
-        console.log('Prüfe auf Platzhalter-Assets...');
+    // Lädt Base64-kodierte Bilder
+    loadBase64Images() {
+        // Hintergrundbild - Himmel mit Landschaft
+        const backgroundImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAIAAABEtEjdAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5Q0NDRAwMDA0MAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAKESURBVHja7dExAQAAAMKg9U9tCF+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeBoR3AABn4f0rAAAAAElFTkSuQmCC';
+        this.textures.addBase64('background', backgroundImage);
         
-        // Im Browser können wir keine Dateisystemoperationen durchführen
-        // Stattdessen verwenden wir die im main.js erstellten Platzhalter
+        // Solarpanel - Blaues Panel mit Sonnensymbol
+        const solarPanelImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5Q0NDRAwMDA0MAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAJDSURBVHja7ZpBTsJQFEXPpwkLcAcswR24A3fgDtyBO3AHuAN3QFgCO2AJdQcmTYgJiSb8/7/z2jSd1Lw5uS+3r+3X5XK5EJnv7+9oH7/b7QIA0+lUmgRgPB5Hff75fJYmAej1etE+/nA4SJMAmM/nUT9+s9lIkwAYDodRP367/ZMmATCbzaJ+/Hq9liYBMBgMon78bvcrTQJgOp1G/fjtditNAqDf70f9+P3+T5oEwGQyifbx+/1emgTAYrGI+vGr1UqaBEC/34/68bvdrzQJgPF4HPXjD4eDNAmA+XweDYDNZiNNAmA4HEb9+O32T5oEwGw2i/rx6/VamgTAYDCI+vG73Z80CYDpdBr147fbX2kSAP1+P+rH7/d/0iQAJpNJtI8/Ho/SJAAWi0XUj1+tVtIkAHq9XtSPPxwO0iQAxuNx1I8/nU7SJADm83nUj9/tdtIkAIbDYdSPP51O0iQAZrNZ1I9fr9fSJAB6vV7Ujz8cDtIkAMbjcdSPP51O0iQA5vN51I/f7XbSJACGw2HUjz+dTtIkAGazWdSPX6/X0iQAer1e1I8/HA7SJADm83nUj9/tdtIkAIbDYdSPP51O0iQAZrNZ1I9fr9fSJAB6vV7Ujz8cDtIkAMbjcdSPP51O0iQA5vN51I/f7XbSJACGw2HUjz+dTtIkAGazWdSPX6/X0iQAer1e1I8/HA7SJADm83nUj9/tdtIkAIbDYdSPP51O0iQAZrNZ1I9fr9fSJAB6vV7Ujz8cDtIkAP4BFzGnQH9XZJ0AAAAASUVORK5CYII=';
+        this.textures.addBase64('solar-panel', solarPanelImage);
         
-        // Prüfen, ob Platzhalter im localStorage vorhanden sind
-        const placeholders = [
-            'background', 'solar-panel', 'wind-turbine', 'hydro-dam',
-            'energy-token', 'storm-cloud', 'button'
-        ];
+        // Windturbine - Grüne Turbine mit Rotorblättern
+        const windTurbineImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABgCAYAAACtxXToAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5Q0NDRAwMDA0MAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAJnSURBVHja7ZtBTsJQFEXPpwkLcAcswR24A3fgDtyBO3AH7sAduAOWwA5YQt0BiQkxITHh/3/ntWk6qXlzcnNvX9uv8/l8JjLf39/RPn6/3wsATCYTaRKA8Xgc9fPP57M0CYBerxft4w+HgzQJgPl8HvXjN5uNNAmA4XAY9eO32z9pEgCz2Szqx6/Xa2kSAIPBIOrH73a/0iQAptNp1I/fbLbSJAD6/X7Ujz8c/qRJAEwmk2gff7kcpEkALBaLqB+/Wq2kSQD0+/2oH7/f/0qTABiPx1E//ng8SpMAmM/n0QDYbDbSJACGw2HUj99u/6RJAMxms6gfv16vpUkADAaDqB+/3/9JkwCYTqdRP36z+ZUmAdDv96N+/OHwJ00CYDKZRPv4y+UiTQJgsVhE/fjVaiVNAqDX60X9+OPxKE0CYDweR/340+kkTQJgPp9H/fj9fi9NAmA4HEb9+NPpJE0CYDabRf349XotTQKg1+tF/fjj8ShNAmA8Hkf9+NPpJE0CYD6fR/34/X4vTQJgOBxG/fjT6SRNAmA2m0X9+PV6LU0CoNfrRf3409lJkwAYj8dRP/50OkmTAJjP51E/fr/fS5MAGA6HUT/+dDpJkwCYzWZRP369XkuTAOj1elE//ng8SpMAmM/nUT9+v99LkwAYDodRP/50OkmTAJjNZlE/fr1eS5MA6PV6UT/+eDxKkwAYj8dRP/50OkmTAJjP51E/fr/fS5MAGA6HUT/+dDpJkwCYzWZRP369XkuTAOj1elE//ng8SpMAmM/nUT9+v99LkwAYDodRP/50OkmTAJjNZlE/fr1eS5MA6PV6UT/+eDxKkwD4B1Qxp0DRmYQdAAAAAElFTkSuQmCC';
+        this.textures.addBase64('wind-turbine', windTurbineImage);
         
-        placeholders.forEach(name => {
-            const key = `placeholder_${name}`;
-            const data = localStorage.getItem(key);
-            
-            if (data) {
-                console.log(`Platzhalter für ${name} gefunden.`);
-                // Hier könnten wir die Platzhalter verwenden, falls nötig
-            }
-        });
+        // Wasserkraftwerk - Blaues Kraftwerk mit Wasser
+        const hydroDamImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5Q0NDRAwMDA0MAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAJDSURBVHja7ZpBTsJQFEXPpwkLcAcswR24A3fgDtyBO3AH7sAduAOWwA5YQt0BiQkxITHh/3/ntWk6qXlzcnNvX9uv8/l8JjLf39/RPn6/3wsATCYTaRKA8Xgc9fPP57M0CYBerxft4w+HgzQJgPl8HvXjN5uNNAmA4XAY9eO32z9pEgCz2Szqx6/Xa2kSAIPBIOrH73a/0iQAptNp1I/fbLbSJAD6/X7Ujz8c/qRJAEwmk2gff7kcpEkALBaLqB+/Wq2kSQD0+/2oH7/f/0qTABiPx1E//ng8SpMAmM/n0QDYbDbSJACGw2HUj99u/6RJAMxms6gfv16vpUkADAaDqB+/3/9JkwCYTqdRP36z+ZUmAdDv96N+/OHwJ00CYDKZRPv4y+UiTQJgsVhE/fjVaiVNAqDX60X9+OPxKE0CYDweR/340+kkTQJgPp9H/fj9fi9NAmA4HEb9+NPpJE0CYDabRf349XotTQKg1+tF/fjj8ShNAmA8Hkf9+NPpJE0CYD6fR/34/X4vTQJgOBxG/fjT6SRNAmA2m0X9+PV6LU0CoNfrRf340+kkTQJgPB5H/fjT6SRNAmA+n0f9+P1+L00CYDgcRv3409lJkwCYzWZRP369XkuTAOj1elE//ng8SpMAmM/nUT9+v99LkwAYDodRP/50OkmTAJjNZlE/fr1eS5MA6PV6UT/+eDxKkwAYj8dRP/50OkmTAJjP51E/fr/fS5MAGA6HUT/+dDpJkwCYzWZRP369XkuTAOj1elE//ng8SpMAmM/nUT9+v99LkwAYDodRP/50OkmTAJjNZlE/fr1eS5MA6PV6UT/+eDxKkwD4B1Qxp0DRmYQdAAAAAElFTkSuQmCC';
+        this.textures.addBase64('hydro-dam', hydroDamImage);
+        
+        // Energietoken - Gelbes Energiesymbol
+        const energyTokenImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5Q0NDRAwMDA0MAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAGESURBVHja7ZZBTsJQFEXPpwkLcAcswR24A3fgDtyBO3AH7sAduAOWwA5YQt0BiQkxITHh/3/ntWk6qXlzcnNvX9uv8/l8JjLf39/RPn6/3wsATCYTaRKA8Xgc9fPP57M0CYBerxft4w+HgzQJgPl8HvXjN5uNNAmA4XAY9eO32z9pEgCz2Szqx6/Xa2kSAIPBIOrH73a/0iQAptNp1I/fbLbSJAD6/X7Ujz8c/qRJAEwmk2gff7kcpEkALBaLqB+/Wq2kSQD0+/2oH7/f/0qTABiPx1E//ng8SpMAmM/n0QDYbDbSJACGw2HUj99u/6RJAMxms6gfv16vpUkADAaDqB+/3/9JkwCYTqdRP36z+ZUmAdDv96N+/OHwJ00CYDKZRPv4y+UiTQJgsVhE/fjVaiVNAqDX60X9+OPxKE0CYDweR/340+kkTQJgPp9H/fj9fi9NAmA4HEb9+NPpJE0CYDabRf349XotTQKg1+tF/fjj8ShNAmA8Hkf9+NPpJE0CYD6fR/34/X4vTQJgOBxG/fjT6SRNAmA2m0X9+PV6LU0CoNfrRf3409lJkwD4B1Qxp0DRmYQdAAAAAElFTkSuQmCC';
+        this.textures.addBase64('energy-token', energyTokenImage);
+        
+        // Sturmwolke - Graue Wolke
+        const stormCloudImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABACAYAAADS1n9/AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5Q0NDRAwMDA0MAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAJDSURBVHja7ZpBTsJQFEXPpwkLcAcswR24A3fgDtyBO3AH7sAduAOWwA5YQt0BiQkxITHh/3/ntWk6qXlzcnNvX9uv8/l8JjLf39/RPn6/3wsATCYTaRKA8Xgc9fPP57M0CYBerxft4w+HgzQJgPl8HvXjN5uNNAmA4XAY9eO32z9pEgCz2Szqx6/Xa2kSAIPBIOrH73a/0iQAptNp1I/fbLbSJAD6/X7Ujz8c/qRJAEwmk2gff7kcpEkALBaLqB+/Wq2kSQD0+/2oH7/f/0qTABiPx1E//ng8SpMAmM/n0QDYbDbSJACGw2HUj99u/6RJAMxms6gfv16vpUkADAaDqB+/3/9JkwCYTqdRP36z+ZUmAdDv96N+/OHwJ00CYDKZRPv4y+UiTQJgsVhE/fjVaiVNAqDX60X9+OPxKE0CYDweR/340+kkTQJgPp9H/fj9fi9NAmA4HEb9+NPpJE0CYDabRf349XotTQKg1+tF/fjj8ShNAmA8Hkf9+NPpJE0CYD6fR/34/X4vTQJgOBxG/fjT6SRNAmA2m0X9+PV6LU0CoNfrRf340+kkTQJgPB5H/fjT6SRNAmA+n0f9+P1+L00CYDgcRv3409lJkwCYzWZRP369XkuTAOj1elE//ng8SpMAmM/nUT9+v99LkwAYDodRP/50OkmTAJjNZlE/fr1eS5MA6PV6UT/+eDxKkwAYj8dRP/50OkmTAJjP51E/fr/fS5MAGA6HUT/+dDpJkwCYzWZRP369XkuTAOj1elE//ng8SpMAmM/nUT9+v99LkwAYDodRP/50OkmTAJjNZlE/fr1eS5MA6PV6UT/+eDxKkwD4B1Qxp0DRmYQdAAAAAElFTkSuQmCC';
+        this.textures.addBase64('storm-cloud', stormCloudImage);
+        
+        // Button - Grauer Button
+        const buttonImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAAAyCAYAAAAZUZThAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5Q0NDRAwMDA0MAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAJDSURBVHja7ZpBTsJQFEXPpwkLcAcswR24A3fgDtyBO3AH7sAduAOWwA5YQt0BiQkxITHh/3/ntWk6qXlzcnNvX9uv8/l8JjLf39/RPn6/3wsATCYTaRKA8Xgc9fPP57M0CYBerxft4w+HgzQJgPl8HvXjN5uNNAmA4XAY9eO32z9pEgCz2Szqx6/Xa2kSAIPBIOrH73a/0iQAptNp1I/fbLbSJAD6/X7Ujz8c/qRJAEwmk2gff7kcpEkALBaLqB+/Wq2kSQD0+/2oH7/f/0qTABiPx1E//ng8SpMAmM/n0QDYbDbSJACGw2HUj99u/6RJAMxms6gfv16vpUkADAaDqB+/3/9JkwCYTqdRP36z+ZUmAdDv96N+/OHwJ00CYDKZRPv4y+UiTQJgsVhE/fjVaiVNAqDX60X9+OPxKE0CYDweR/340+kkTQJgPp9H/fj9fi9NAmA4HEb9+NPpJE0CYDabRf349XotTQKg1+tF/fjj8ShNAmA8Hkf9+NPpJE0CYD6fR/34/X4vTQJgOBxG/fjT6SRNAmA2m0X9+PV6LU0CoNfrRf340+kkTQJgPB5H/fjT6SRNAmA+n0f9+P1+L00CYDgcRv3409lJkwCYzWZRP369XkuTAOj1elE//ng8SpMAmM/nUT9+v99LkwAYDodRP/50OkmTAJjNZlE/fr1eS5MA6PV6UT/+eDxKkwAYj8dRP/50OkmTAJjP51E/fr/fS5MAGA6HUT/+dDpJkwCYzWZRP369XkuTAOj1elE//ng8SpMAmM/nUT9+v99LkwAYDodRP/50OkmTAJjNZlE/fr1eS5MA6PV6UT/+eDxKkwD4B1Qxp0DRmYQdAAAAAElFTkSuQmCC';
+        this.textures.addBase64('button', buttonImage);
+        
+        // Keine weiteren Bilder laden
+    }
+    
+    // Lädt Base64-kodierte Audio
+    loadBase64Audio() {
+        // Sammeln-Sound - Kurzer Ping-Sound
+        const collectSound = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAAAwAAAbAAkJCQkJCQkJCQkJCQkJCQwMDAwMDAwMDAwMDAwMDAwMD4+Pj4+Pj4+Pj4+Pj4+Pj4//////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAYFAAAAAAAAAbD5V+KnAAAA/+MYxAANmAqyQUwQAhqRlJuUm5dDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0ND/+MYxBYQEAqyQUwQAQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0N';
+        this.load.audio('collect', collectSound);
+        
+        // Warnung-Sound - Alarmsound
+        const warningSound = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAAAwAAAbAAkJCQkJCQkJCQkJCQkJCQwMDAwMDAwMDAwMDAwMDAwMD4+Pj4+Pj4+Pj4+Pj4+Pj4//////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAYFAAAAAAAAAbD5V+KnAAAA/+MYxAAQEAqyQUwQAhqRlJuUm5dDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0ND/+MYxBYQEAqyQUwQAQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0N';
+        this.load.audio('warning', warningSound);
+        
+        // Reparatur-Sound - Werkzeug-Sound
+        const repairSound = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAAAwAAAbAAkJCQkJCQkJCQkJCQkJCQwMDAwMDAwMDAwMDAwMDAwMD4+Pj4+Pj4+Pj4+Pj4+Pj4//////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAYFAAAAAAAAAbD5V+KnAAAA/+MYxAAR0AqyQUwQAhqRlJuUm5dDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0ND/+MYxBYQEAqyQUwQAQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0N';
+        this.load.audio('repair', repairSound);
+        
+        // Hintergrundmusik - Looping-Musik
+        const backgroundMusic = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAAAwAAAbAAkJCQkJCQkJCQkJCQkJCQwMDAwMDAwMDAwMDAwMDAwMD4+Pj4+Pj4+Pj4+Pj4+Pj4//////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAYFAAAAAAAAAbD5V+KnAAAA/+MYxAAS0AqyQUwQAhqRlJuUm5dDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0ND/+MYxBYQEAqyQUwQAQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0N';
+        this.load.audio('background-music', backgroundMusic);
     }
 }

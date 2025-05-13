@@ -194,27 +194,10 @@ class GameScene extends Phaser.Scene {
     
     // Tutorial starten
     startTutorial() {
-        // Übersichtsbild anzeigen
-        const overviewImage = this.add.image(400, 200, 'overview');
-        overviewImage.setScale(0.4);
-        overviewImage.setAlpha(0.8);
-        
-        // Hintergrund für das Übersichtsbild
-        const overviewBg = this.add.rectangle(400, 200,
-            overviewImage.displayWidth + 20,
-            overviewImage.displayHeight + 20,
-            0x000000, 0.7);
-        overviewBg.setDepth(9);
-        overviewImage.setDepth(10);
-        
         const steps = [
             {
                 message: 'Willkommen bei Energy Rush: Solar Sprint!',
                 delay: 2000
-            },
-            {
-                message: 'Wie im Übersichtsbild zu sehen, musst du verschiedene Energiequellen verwalten.',
-                delay: 5000
             },
             {
                 message: 'Klicke auf die Energiequellen, um Energie zu sammeln.',
@@ -242,19 +225,7 @@ class GameScene extends Phaser.Scene {
             },
             {
                 message: 'Viel Erfolg!',
-                delay: 3000,
-                onShow: () => {
-                    // Übersichtsbild ausblenden
-                    this.tweens.add({
-                        targets: [overviewImage, overviewBg],
-                        alpha: 0,
-                        duration: 1000,
-                        onComplete: () => {
-                            overviewImage.destroy();
-                            overviewBg.destroy();
-                        }
-                    });
-                }
+                delay: 3000
             }
         ];
         
@@ -263,11 +234,6 @@ class GameScene extends Phaser.Scene {
         steps.forEach(step => {
             this.time.delayedCall(totalDelay, () => {
                 this.showWarning(step.message);
-                
-                // Wenn es eine onShow-Funktion gibt, diese ausführen
-                if (step.onShow) {
-                    step.onShow();
-                }
             });
             totalDelay += step.delay;
         });

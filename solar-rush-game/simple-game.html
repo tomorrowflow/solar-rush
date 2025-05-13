@@ -114,21 +114,485 @@
             gameContainer.style.backgroundImage = 'url(assets/images/background.png)';
             gameContainer.style.backgroundSize = 'cover';
             
-            // Energiequellen erstellen
-            createEnergySource('solar', 'Solaranlage', 200, 200);
-            createEnergySource('wind', 'Windturbine', 400, 200);
-            createEnergySource('hydro', 'Wasserkraftwerk', 600, 200);
+            // Sounds laden
+            const collectSound = new Audio('assets/audio/collect.mp3');
+            const warningSound = new Audio('assets/audio/warning.mp3');
+            const repairSound = new Audio('assets/audio/repair.mp3');
+            const backgroundMusic = new Audio('assets/audio/background-music.mp3');
             
-            // Spielinfo
-            const infoDiv = document.createElement('div');
-            infoDiv.style.position = 'absolute';
-            infoDiv.style.top = '20px';
-            infoDiv.style.left = '20px';
-            infoDiv.style.color = 'white';
-            infoDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-            infoDiv.style.padding = '10px';
-            infoDiv.innerHTML = 'Energie: 0/100<br>Zeit: 5:00';
-            gameContainer.appendChild(infoDiv);
+            // Hintergrundmusik abspielen (Loop)
+            backgroundMusic.loop = true;
+            backgroundMusic.volume = 0.3;
+            backgroundMusic.play().catch(e => console.log('Autoplay wurde vom Browser blockiert:', e));
+            
+            // Spielvariablen
+            let gridEnergy = 0;
+            const maxGridEnergy = 100;
+            const targetEnergy = 100; // Ziel: 100 Energie-Tokens
+            let timeRemaining = 300; // 5 Minuten (in Sekunden)
+            let failureCount = 0;
+            const maxFailures = 5;
+            let gameOver = false;
+            let energyTokens = []; // Array für Energietokens
+            let playerEnergy = 0; // Gesammelte Energie des Spielers
+            
+            // Grid erstellen
+            const grid = document.createElement('div');
+            grid.style.position = 'absolute';
+            grid.style.top = '20px';
+            grid.style.right = '20px';
+            grid.style.width = '200px';
+            grid.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            grid.style.padding = '10px';
+            grid.style.borderRadius = '5px';
+            grid.style.color = 'white';
+            
+            // Grid-Inhalt
+            const gridTitle = document.createElement('div');
+            gridTitle.textContent = 'Energienetz';
+            gridTitle.style.fontWeight = 'bold';
+            gridTitle.style.marginBottom = '5px';
+            grid.appendChild(gridTitle);
+            
+            // Energieanzeige
+            const energyDisplay = document.createElement('div');
+            energyDisplay.textContent = `Energie: ${gridEnergy}/${maxGridEnergy}`;
+            energyDisplay.style.marginBottom = '5px';
+            grid.appendChild(energyDisplay);
+            
+            // Energiebalken
+            const energyBarContainer = document.createElement('div');
+            energyBarContainer.style.width = '100%';
+            energyBarContainer.style.height = '20px';
+            energyBarContainer.style.backgroundColor = '#333';
+            energyBarContainer.style.marginBottom = '10px';
+            energyBarContainer.style.position = 'relative';
+            
+            const energyBar = document.createElement('div');
+            energyBar.style.width = '0%';
+            energyBar.style.height = '100%';
+            energyBar.style.backgroundColor = '#00ff00';
+            energyBarContainer.appendChild(energyBar);
+            
+            // Überladungsgrenze
+            const overloadLine = document.createElement('div');
+            overloadLine.style.position = 'absolute';
+            overloadLine.style.top = '0';
+            overloadLine.style.left = '90%';
+            overloadLine.style.width = '2px';
+            overloadLine.style.height = '100%';
+            overloadLine.style.backgroundColor = '#ff0000';
+            energyBarContainer.appendChild(overloadLine);
+            
+            grid.appendChild(energyBarContainer);
+            
+            // Zeitanzeige
+            const timeDisplay = document.createElement('div');
+            timeDisplay.textContent = `Zeit: ${Math.floor(timeRemaining / 60)}:${(timeRemaining % 60).toString().padStart(2, '0')}`;
+            grid.appendChild(timeDisplay);
+            
+            // Ausfallzähler
+            const failureDisplay = document.createElement('div');
+            failureDisplay.textContent = `Ausfälle: ${failureCount}/${maxFailures}`;
+            grid.appendChild(failureDisplay);
+            
+            gameContainer.appendChild(grid);
+            
+            // Spieler-Energieanzeige
+            const playerEnergyDisplay = document.createElement('div');
+            playerEnergyDisplay.style.position = 'absolute';
+            playerEnergyDisplay.style.top = '80px';
+            playerEnergyDisplay.style.right = '20px';
+            playerEnergyDisplay.style.width = '200px';
+            playerEnergyDisplay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            playerEnergyDisplay.style.padding = '10px';
+            playerEnergyDisplay.style.borderRadius = '5px';
+            playerEnergyDisplay.style.color = 'white';
+            playerEnergyDisplay.textContent = `Gesammelte Energie: ${playerEnergy}`;
+            gameContainer.appendChild(playerEnergyDisplay);
+            
+            // Funktion zum Aktualisieren der Spieler-Energieanzeige
+            function updatePlayerEnergyDisplay() {
+                playerEnergyDisplay.textContent = `Gesammelte Energie: ${playerEnergy}`;
+            }
+            
+            // Verbraucher erstellen
+            const consumers = [
+                { name: 'Krankenhaus', rate: 5, interval: 10, penalty: -2 },
+                { name: 'E-Auto-Ladestation', rate: 3, interval: 10, penalty: -10 },
+                { name: 'Fabrik', rate: 10, interval: 15, penalty: -30 }
+            ];
+            
+            const consumersContainer = document.createElement('div');
+            consumersContainer.style.position = 'absolute';
+            consumersContainer.style.bottom = '20px';
+            consumersContainer.style.left = '20px';
+            consumersContainer.style.width = '250px';
+            
+            consumers.forEach((consumer, index) => {
+                const consumerElement = document.createElement('div');
+                consumerElement.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                consumerElement.style.padding = '5px';
+                consumerElement.style.marginBottom = '10px';
+                consumerElement.style.borderRadius = '5px';
+                consumerElement.style.color = 'white';
+                
+                const consumerName = document.createElement('div');
+                consumerName.textContent = consumer.name;
+                consumerName.style.fontWeight = 'bold';
+                consumerElement.appendChild(consumerName);
+                
+                const consumerInfo = document.createElement('div');
+                consumerInfo.textContent = `Verbrauch: ${consumer.rate} alle ${consumer.interval}s`;
+                consumerInfo.style.fontSize = '12px';
+                consumerElement.appendChild(consumerInfo);
+                
+                const consumerStatus = document.createElement('div');
+                consumerStatus.textContent = 'Status: Aktiv';
+                consumerStatus.style.color = '#00ff00';
+                consumerElement.appendChild(consumerStatus);
+                
+                consumersContainer.appendChild(consumerElement);
+                
+                // Verbraucher-Timer
+                setInterval(() => {
+                    if (gameOver) return;
+                    
+                    if (gridEnergy >= consumer.rate) {
+                        gridEnergy -= consumer.rate;
+                        updateGrid();
+                        consumerStatus.textContent = 'Status: Aktiv';
+                        consumerStatus.style.color = '#00ff00';
+                    } else {
+                        // Ausfall
+                        consumerStatus.textContent = 'Status: Ausfall!';
+                        consumerStatus.style.color = '#ff0000';
+                        
+                        // Warnsound abspielen
+                        warningSound.currentTime = 0;
+                        warningSound.play();
+                        
+                        // Strafe anwenden
+                        if (consumer.penalty < 0) {
+                            failureCount++;
+                            failureDisplay.textContent = `Ausfälle: ${failureCount}/${maxFailures}`;
+                            
+                            if (failureCount >= maxFailures) {
+                                endGame(false, 'Zu viele Ausfälle! Die Stadt hat keinen Strom mehr.');
+                            }
+                        }
+                        
+                        showWarning(`${consumer.name} hat keinen Strom!`);
+                    }
+                }, consumer.interval * 1000);
+            });
+            
+            gameContainer.appendChild(consumersContainer);
+            
+            // Warnungsanzeige
+            const warningContainer = document.createElement('div');
+            warningContainer.style.position = 'absolute';
+            warningContainer.style.top = '100px';
+            warningContainer.style.left = '50%';
+            warningContainer.style.transform = 'translateX(-50%)';
+            warningContainer.style.backgroundColor = 'rgba(255, 0, 0, 0.7)';
+            warningContainer.style.padding = '10px';
+            warningContainer.style.borderRadius = '5px';
+            warningContainer.style.color = 'white';
+            warningContainer.style.fontWeight = 'bold';
+            warningContainer.style.textAlign = 'center';
+            warningContainer.style.display = 'none';
+            warningContainer.style.zIndex = '1000';
+            gameContainer.appendChild(warningContainer);
+            
+            // Funktion zum Anzeigen von Warnungen
+            function showWarning(message) {
+                warningContainer.textContent = message;
+                warningContainer.style.display = 'block';
+                
+                // Nach 3 Sekunden ausblenden
+                setTimeout(() => {
+                    warningContainer.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Funktion zum Hinzufügen von Energie zum Grid
+            function addEnergyToGrid(amount) {
+                if (gameOver) return;
+                
+                gridEnergy = Math.min(gridEnergy + amount, maxGridEnergy);
+                updateGrid();
+                
+                // Prüfen, ob das Ziel erreicht wurde
+                if (gridEnergy >= targetEnergy) {
+                    endGame(true, 'Gewonnen! Die Stadt ist mit erneuerbarer Energie versorgt.');
+                }
+            }
+            
+            // Grid aktualisieren
+            function updateGrid() {
+                energyDisplay.textContent = `Energie: ${gridEnergy}/${maxGridEnergy}`;
+                energyBar.style.width = `${(gridEnergy / maxGridEnergy) * 100}%`;
+                
+                // Farbe des Balkens basierend auf Füllstand
+                if (gridEnergy / maxGridEnergy > 0.9) {
+                    energyBar.style.backgroundColor = '#ff0000'; // Rot bei Überlastung
+                    showWarning('Achtung: Netzüberlastung droht!');
+                } else if (gridEnergy / maxGridEnergy > 0.7) {
+                    energyBar.style.backgroundColor = '#ffff00'; // Gelb bei hohem Füllstand
+                } else {
+                    energyBar.style.backgroundColor = '#00ff00'; // Grün bei normalem Füllstand
+                }
+                
+                // Prüfen auf Überlastung
+                if (gridEnergy >= maxGridEnergy) {
+                    endGame(false, 'Blackout! Das Netz wurde überlastet.');
+                }
+            }
+            
+            // Timer starten
+            const gameTimer = setInterval(() => {
+                if (gameOver) return;
+                
+                timeRemaining--;
+                timeDisplay.textContent = `Zeit: ${Math.floor(timeRemaining / 60)}:${(timeRemaining % 60).toString().padStart(2, '0')}`;
+                
+                if (timeRemaining <= 0) {
+                    endGame(false, 'Zeit abgelaufen! Die Stadt benötigt mehr Energie.');
+                }
+            }, 1000);
+            
+            // Timer für das Erscheinen von Energietokens
+            const tokenTimer = setInterval(() => {
+                if (gameOver) return;
+                
+                // Zufällig ein neues Energietoken erstellen
+                createEnergyToken();
+            }, 5000); // Alle 5 Sekunden
+            
+            // Funktion zum Erstellen eines Energietokens
+            function createEnergyToken() {
+                // Zufällige Position im Spielbereich
+                const x = Math.floor(Math.random() * 700) + 50;
+                const y = Math.floor(Math.random() * 400) + 100;
+                
+                // Token-Element erstellen
+                const token = document.createElement('div');
+                token.style.position = 'absolute';
+                token.style.left = x + 'px';
+                token.style.top = y + 'px';
+                token.style.width = '30px';
+                token.style.height = '30px';
+                token.style.borderRadius = '50%';
+                token.style.backgroundColor = '#ffff00';
+                token.style.boxShadow = '0 0 10px #ffff00';
+                token.style.cursor = 'pointer';
+                token.style.zIndex = '100';
+                
+                // Pulsierender Effekt
+                let scale = 1;
+                const pulseInterval = setInterval(() => {
+                    scale = scale === 1 ? 1.2 : 1;
+                    token.style.transform = `scale(${scale})`;
+                }, 500);
+                
+                // Klick-Event zum Sammeln
+                token.onclick = function() {
+                    // Token entfernen
+                    gameContainer.removeChild(token);
+                    clearInterval(pulseInterval);
+                    
+                    // Aus Array entfernen
+                    const index = energyTokens.indexOf(token);
+                    if (index > -1) {
+                        energyTokens.splice(index, 1);
+                    }
+                    
+                    // Sound abspielen
+                    collectSound.currentTime = 0;
+                    collectSound.play();
+                    
+                    // Energie zum Spieler hinzufügen
+                    playerEnergy += 10;
+                    updatePlayerEnergyDisplay();
+                    
+                    // Prüfen, ob das Ziel erreicht wurde
+                    if (playerEnergy >= targetEnergy) {
+                        endGame(true, 'Gewonnen! Du hast genug Energie gesammelt!');
+                    }
+                    
+                    // Visuellen Effekt anzeigen
+                    showCollectEffect(x, y);
+                };
+                
+                // Token zum Spielbereich hinzufügen
+                gameContainer.appendChild(token);
+                energyTokens.push(token);
+                
+                // Token nach 10 Sekunden verschwinden lassen, wenn es nicht gesammelt wurde
+                setTimeout(() => {
+                    if (energyTokens.includes(token)) {
+                        gameContainer.removeChild(token);
+                        clearInterval(pulseInterval);
+                        
+                        const index = energyTokens.indexOf(token);
+                        if (index > -1) {
+                            energyTokens.splice(index, 1);
+                        }
+                    }
+                }, 10000);
+            }
+            
+            // Funktion für visuellen Effekt beim Sammeln
+            function showCollectEffect(x, y) {
+                const effect = document.createElement('div');
+                effect.style.position = 'absolute';
+                effect.style.left = x + 'px';
+                effect.style.top = y + 'px';
+                effect.style.width = '30px';
+                effect.style.height = '30px';
+                effect.style.borderRadius = '50%';
+                effect.style.backgroundColor = 'rgba(255, 255, 0, 0.7)';
+                effect.style.zIndex = '99';
+                
+                gameContainer.appendChild(effect);
+                
+                // Animation
+                let size = 30;
+                let opacity = 0.7;
+                const animInterval = setInterval(() => {
+                    size += 5;
+                    opacity -= 0.05;
+                    effect.style.width = size + 'px';
+                    effect.style.height = size + 'px';
+                    effect.style.marginLeft = -(size - 30) / 2 + 'px';
+                    effect.style.marginTop = -(size - 30) / 2 + 'px';
+                    effect.style.opacity = opacity;
+                    
+                    if (opacity <= 0) {
+                        clearInterval(animInterval);
+                        gameContainer.removeChild(effect);
+                    }
+                }, 50);
+            }
+            
+            // Zufallsereignisse alle 60 Sekunden
+            const eventTimer = setInterval(() => {
+                if (gameOver) return;
+                
+                // Zufälliges Ereignis auswählen
+                const eventTypes = ['storm', 'failure', 'demand'];
+                const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+                
+                switch (eventType) {
+                    case 'storm':
+                        // Sturm trifft Solaranlagen
+                        showWarning('Ein Sturm zieht auf! Solaranlagen sind betroffen.');
+                        warningSound.currentTime = 0;
+                        warningSound.play();
+                        
+                        // Alle Solaranlagen deaktivieren
+                        energySources.filter(source => source.className.includes('solar')).forEach(source => {
+                            source.break();
+                        });
+                        break;
+                        
+                    case 'failure':
+                        // Zufälliger Ausfall einer Energiequelle
+                        const randomSource = energySources[Math.floor(Math.random() * energySources.length)];
+                        randomSource.break();
+                        break;
+                        
+                    case 'demand':
+                        // Verbrauchsspitze
+                        showWarning('Verbrauchsspitze! Der Energiebedarf steigt vorübergehend.');
+                        
+                        // Zusätzliche Energie verbrauchen
+                        const extraDemand = 5;
+                        if (gridEnergy >= extraDemand) {
+                            gridEnergy -= extraDemand;
+                            updateGrid();
+                        } else {
+                            // Nicht genug Energie
+                            failureCount++;
+                            failureDisplay.textContent = `Ausfälle: ${failureCount}/${maxFailures}`;
+                            
+                            if (failureCount >= maxFailures) {
+                                endGame(false, 'Zu viele Ausfälle! Die Stadt hat keinen Strom mehr.');
+                            }
+                        }
+                        break;
+                }
+            }, 20000); // Alle 20 Sekunden (für Testzwecke)
+            
+            // Spielende-Funktion
+            function endGame(success, message) {
+                if (gameOver) return;
+                gameOver = true;
+                
+                // Timer stoppen
+                clearInterval(gameTimer);
+                clearInterval(eventTimer);
+                clearInterval(tokenTimer);
+                
+                // Sound abspielen
+                if (success) {
+                    collectSound.currentTime = 0;
+                    collectSound.play();
+                } else {
+                    warningSound.currentTime = 0;
+                    warningSound.play();
+                }
+                
+                // Spielende-Nachricht anzeigen
+                const gameOverContainer = document.createElement('div');
+                gameOverContainer.style.position = 'absolute';
+                gameOverContainer.style.top = '50%';
+                gameOverContainer.style.left = '50%';
+                gameOverContainer.style.transform = 'translate(-50%, -50%)';
+                gameOverContainer.style.backgroundColor = success ? 'rgba(0, 128, 0, 0.9)' : 'rgba(128, 0, 0, 0.9)';
+                gameOverContainer.style.padding = '20px';
+                gameOverContainer.style.borderRadius = '10px';
+                gameOverContainer.style.color = 'white';
+                gameOverContainer.style.textAlign = 'center';
+                gameOverContainer.style.zIndex = '2000';
+                
+                const gameOverTitle = document.createElement('h2');
+                gameOverTitle.textContent = success ? 'MISSION ERFÜLLT!' : 'MISSION FEHLGESCHLAGEN';
+                gameOverContainer.appendChild(gameOverTitle);
+                
+                const gameOverMessage = document.createElement('p');
+                gameOverMessage.textContent = message;
+                gameOverContainer.appendChild(gameOverMessage);
+                
+                const restartButton = document.createElement('button');
+                restartButton.textContent = 'Zurück zum Menü';
+                restartButton.style.padding = '10px 20px';
+                restartButton.style.marginTop = '20px';
+                restartButton.style.backgroundColor = '#0284c7';
+                restartButton.style.border = 'none';
+                restartButton.style.borderRadius = '5px';
+                restartButton.style.color = 'white';
+                restartButton.style.cursor = 'pointer';
+                restartButton.onclick = function() {
+                    location.reload();
+                };
+                gameOverContainer.appendChild(restartButton);
+                
+                gameContainer.appendChild(gameOverContainer);
+            }
+            
+            // Energiequellen erstellen und speichern
+            const energySources = [
+                createEnergySource('solar', 'Solaranlage', 200, 200),
+                createEnergySource('solar', 'Solaranlage', 200, 300),
+                createEnergySource('wind', 'Windturbine', 400, 200),
+                createEnergySource('wind', 'Windturbine', 400, 300),
+                createEnergySource('hydro', 'Wasserkraftwerk', 600, 200),
+                createEnergySource('hydro', 'Wasserkraftwerk', 600, 300)
+            ];
+            
+            // Spielinfo wird nicht mehr benötigt, da wir jetzt das Grid haben
             
             // Zurück-Button
             const backButton = document.createElement('div');
@@ -184,7 +648,134 @@
             
             source.style.backgroundImage = `url(${imagePath})`;
             
+            // Energieproduktion (alle 5 Sekunden 1 Token gemäß Spezifikation)
+            let tokenAvailable = false;
+            let energyToken = null;
+            
+            // Sofort ein Token erstellen
+            createEnergyToken();
+            
+            // Timer für Energieproduktion (alle 5 Sekunden)
+            setInterval(() => {
+                if (!tokenAvailable && !source.classList.contains('broken')) {
+                    createEnergyToken();
+                }
+            }, 5000);
+            
+            // Funktion zum Erstellen eines Energie-Tokens
+            function createEnergyToken() {
+                if (energyToken) return; // Nur ein Token gleichzeitig
+                
+                tokenAvailable = true;
+                
+                // Token erstellen
+                energyToken = document.createElement('div');
+                energyToken.style.position = 'absolute';
+                energyToken.style.width = '32px';
+                energyToken.style.height = '32px';
+                energyToken.style.left = (x + 16) + 'px';
+                energyToken.style.top = (y - 20) + 'px';
+                energyToken.style.backgroundImage = 'url(assets/images/energy-token.png)';
+                energyToken.style.backgroundSize = 'contain';
+                energyToken.style.backgroundRepeat = 'no-repeat';
+                energyToken.style.zIndex = '100';
+                energyToken.style.cursor = 'pointer';
+                
+                // Animation für schwebenden Effekt
+                let floatY = 0;
+                let floatDirection = 1;
+                const floatInterval = setInterval(() => {
+                    floatY += floatDirection * 0.5;
+                    if (floatY > 5) floatDirection = -1;
+                    if (floatY < -5) floatDirection = 1;
+                    energyToken.style.transform = `translateY(${floatY}px)`;
+                }, 50);
+                
+                // Klick-Handler
+                energyToken.onclick = function() {
+                    collectSound.currentTime = 0;
+                    collectSound.play();
+                    tokenAvailable = false;
+                    
+                    // Animation
+                    clearInterval(floatInterval);
+                    let tokenY = parseInt(energyToken.style.top);
+                    let alpha = 1.0;
+                    const animInterval = setInterval(() => {
+                        tokenY -= 2;
+                        alpha -= 0.05;
+                        energyToken.style.top = tokenY + 'px';
+                        energyToken.style.opacity = alpha;
+                        
+                        if (alpha <= 0) {
+                            clearInterval(animInterval);
+                            energyToken.remove();
+                            energyToken = null;
+                        }
+                    }, 50);
+                    
+                    // Energie zum Grid hinzufügen
+                    addEnergyToGrid(1);
+                };
+                
+                document.getElementById('game-container').appendChild(energyToken);
+            }
+            
+            // Zufällige Ausfälle
+            let broken = false;
+            
             source.onclick = function() {
+                if (broken) {
+                    // Reparieren
+                    repairSound.currentTime = 0;
+                    repairSound.play();
+                    broken = false;
+                    source.classList.remove('broken');
+                    source.style.filter = 'none';
+                    
+                    // Reparatur-Animation
+                    const repairEffect = document.createElement('div');
+                    repairEffect.style.position = 'absolute';
+                    repairEffect.style.width = '80px';
+                    repairEffect.style.height = '80px';
+                    repairEffect.style.borderRadius = '50%';
+                    repairEffect.style.backgroundColor = 'rgba(255, 255, 0, 0.5)';
+                    repairEffect.style.left = (x - 8) + 'px';
+                    repairEffect.style.top = (y - 8) + 'px';
+                    repairEffect.style.zIndex = '90';
+                    document.getElementById('game-container').appendChild(repairEffect);
+                    
+                    // Animation
+                    let scale = 1.0;
+                    let alpha = 0.5;
+                    const animInterval = setInterval(() => {
+                        scale += 0.1;
+                        alpha -= 0.05;
+                        repairEffect.style.transform = `scale(${scale})`;
+                        repairEffect.style.opacity = alpha;
+                        
+                        if (alpha <= 0) {
+                            clearInterval(animInterval);
+                            repairEffect.remove();
+                        }
+                    }, 50);
+                    
+                    return;
+                }
+                
+                if (!tokenAvailable) {
+                    warningSound.currentTime = 0;
+                    warningSound.play();
+                    showWarning('Keine Energie verfügbar bei ' + name + '!');
+                    return;
+                }
+                
+                // Energie sammeln
+                collectSound.currentTime = 0;
+                collectSound.play();
+                tokenAvailable = false;
+                tokenIndicator.style.display = 'none';
+                
                 // Energietoken-Animation beim Sammeln
                 const token = document.createElement('div');
                 token.style.position = 'absolute';
@@ -198,12 +789,12 @@
                 document.getElementById('game-container').appendChild(token);
                 
                 // Animation
-                let y = parseInt(token.style.top);
+                let tokenY = parseInt(token.style.top);
                 let alpha = 1.0;
                 const animInterval = setInterval(() => {
-                    y -= 2;
+                    tokenY -= 2;
                     alpha -= 0.05;
-                    token.style.top = y + 'px';
+                    token.style.top = tokenY + 'px';
                     token.style.opacity = alpha;
                     
                     if (alpha <= 0) {
@@ -212,10 +803,33 @@
                     }
                 }, 50);
                 
-                alert('Energie von ' + name + ' gesammelt!');
+                // Energie zum Grid hinzufügen
+                addEnergyToGrid(1);
             };
             
+            // Funktion zum Beschädigen der Energiequelle
+            function breakSource() {
+                if (!broken) {
+                    broken = true;
+                    source.classList.add('broken');
+                    source.style.filter = 'grayscale(100%) brightness(50%)';
+                    tokenAvailable = false;
+                    tokenIndicator.style.display = 'none';
+                    
+                    // Warnsound abspielen
+                    warningSound.currentTime = 0;
+                    warningSound.play();
+                    
+                    // Warnmeldung anzeigen
+                    showWarning(`${name} ist defekt! Klicke zum Reparieren.`);
+                }
+            }
+            
+            // Öffentliche Methode zum Beschädigen
+            source.break = breakSource;
+            
             document.getElementById('game-container').appendChild(source);
+            return source;
         }
     </script>
 </body>

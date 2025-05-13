@@ -20,6 +20,7 @@ class GameScene extends Phaser.Scene {
         
         // Spielobjekte
         this.energySources = [];
+        this.energyTokens = [];
         this.grid = null;
     }
 
@@ -46,6 +47,14 @@ class GameScene extends Phaser.Scene {
         this.obstacleTimer = this.time.addEvent({
             delay: 20000, // Alle 20 Sekunden
             callback: this.spawnRandomObstacle,
+            callbackScope: this,
+            loop: true
+        });
+        
+        // Ereignis-Timer für zufällige Energietokens
+        this.tokenTimer = this.time.addEvent({
+            delay: 5000, // Alle 5 Sekunden
+            callback: this.spawnEnergyToken,
             callbackScope: this,
             loop: true
         });
@@ -134,6 +143,38 @@ class GameScene extends Phaser.Scene {
         }
     }
     
+    // Energie von Token sammeln
+    collectEnergyToken(amount) {
+        // Energie direkt zum Spieler hinzufügen (nicht zum Grid)
+        this.energyCollected += amount;
+        this.updateUI();
+    }
+    
+    // Zufälliges Energietoken erzeugen
+    spawnEnergyToken() {
+        // Wenn das Spiel vorbei ist, keine Tokens mehr erzeugen
+        if (this.gameOver) return;
+        
+        // Zufällige Position im Spielbereich
+        const x = Phaser.Math.Between(50, 750);
+        const y = Phaser.Math.Between(50, 550);
+        
+        // Energietoken erstellen
+        const token = new EnergyToken(this, x, y);
+        this.energyTokens.push(token);
+        
+        // Token nach einiger Zeit verschwinden lassen, wenn es nicht gesammelt wurde
+        this.time.delayedCall(10000, () => {
+            if (token && !token.collected) {
+                const index = this.energyTokens.indexOf(token);
+                if (index > -1) {
+                    this.energyTokens.splice(index, 1);
+                }
+                token.destroy();
+            }
+        });
+    }
+    
     // Zufälliges Hindernis erzeugen
     spawnRandomObstacle() {
         // Wenn bereits ein Hindernis aktiv ist, nichts tun
@@ -180,6 +221,7 @@ class GameScene extends Phaser.Scene {
         
         // Timer stoppen
         if (this.obstacleTimer) this.obstacleTimer.remove();
+        if (this.tokenTimer) this.tokenTimer.remove();
         
         // Nachricht an UI-Szene senden
         this.events.emit('gameOver', { message, success });

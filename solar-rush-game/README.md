@@ -6,8 +6,6 @@ Ein Spiel über erneuerbare Energien, Ressourcenmanagement und Teamkoordination.
 
 In "Energy Rush: Solar Sprint" übernehmen Sie die Kontrolle über verschiedene erneuerbare Energiequellen (Solar, Wind, Wasser) und müssen genug Energie sammeln, um eine Stadt zu versorgen. Dabei müssen Sie auf Umweltereignisse wie Stürme, Windstille und Überschwemmungen reagieren, defekte Anlagen reparieren und Netzüberlastungen vermeiden.
 
-Das Übersichtsbild im Hauptmenü und im Tutorial zeigt den grundlegenden Spielablauf: Sammeln von Energie aus verschiedenen Quellen, Überwachung des Stromnetzes und Reaktion auf Umweltereignisse.
-
 ## Spielziel
 
 Sammeln Sie die Zielenergiemenge (standardmäßig 100 Einheiten), bevor die Zeit abläuft. Vermeiden Sie dabei Blackouts durch Netzüberlastung oder Energiemangel.

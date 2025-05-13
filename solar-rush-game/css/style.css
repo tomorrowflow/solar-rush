@@ -1,0 +1,44 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+#game-container {
+    width: 800px;
+    height: 600px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+canvas {
+    display: block;
+}
+
+/* Overlay für Spielinformationen */
+.game-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+/* Spielende-Nachricht */
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    display: none;
+}

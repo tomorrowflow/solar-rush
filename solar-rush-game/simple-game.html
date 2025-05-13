@@ -110,9 +110,8 @@
             const gameContainer = document.getElementById('game-container');
             gameContainer.innerHTML = '';
             
-            // Hintergrund mit Base64-kodiertem Bild
-            const backgroundImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAIAAABEtEjdAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5Q0NDRAwMDA0MAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAKESURBVHja7dExAQAAAMKg9U9tCF+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeBoR3AABn4f0rAAAAAElFTkSuQmCC';
-            gameContainer.style.backgroundImage = `url(${backgroundImage})`;
+            // Hintergrund mit echtem PNG-Bild
+            gameContainer.style.backgroundImage = 'url(assets/images/background.png)';
             gameContainer.style.backgroundSize = 'cover';
             
             // Energiequellen erstellen
@@ -172,9 +171,50 @@
             source.style.left = x + 'px';
             source.style.top = y + 'px';
             source.title = name;
+            
+            // Echte PNG-Dateien für die Energiequellen
+            let imagePath;
+            if (type === 'solar') {
+                imagePath = 'assets/images/solar-panel.png';
+            } else if (type === 'wind') {
+                imagePath = 'assets/images/wind-turbine.png';
+            } else if (type === 'hydro') {
+                imagePath = 'assets/images/hydro-dam.png';
+            }
+            
+            source.style.backgroundImage = `url(${imagePath})`;
+            
             source.onclick = function() {
+                // Energietoken-Animation beim Sammeln
+                const token = document.createElement('div');
+                token.style.position = 'absolute';
+                token.style.width = '32px';
+                token.style.height = '32px';
+                token.style.left = (x + 16) + 'px';
+                token.style.top = (y + 16) + 'px';
+                token.style.backgroundImage = 'url(assets/images/energy-token.png)';
+                token.style.backgroundSize = 'contain';
+                token.style.zIndex = '100';
+                document.getElementById('game-container').appendChild(token);
+                
+                // Animation
+                let y = parseInt(token.style.top);
+                let alpha = 1.0;
+                const animInterval = setInterval(() => {
+                    y -= 2;
+                    alpha -= 0.05;
+                    token.style.top = y + 'px';
+                    token.style.opacity = alpha;
+                    
+                    if (alpha <= 0) {
+                        clearInterval(animInterval);
+                        token.remove();
+                    }
+                }, 50);
+                
                 alert('Energie von ' + name + ' gesammelt!');
             };
+            
             document.getElementById('game-container').appendChild(source);
         }
     </script>

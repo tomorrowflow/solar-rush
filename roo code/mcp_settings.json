@@ -1,59 +1,13 @@
 {
   "mcpServers": {
-    "context7": {
-      "command": "npx",
+    "MCP_DOCKER": {
+      "command": "docker",
       "args": [
-        "-y",
-        "@upstash/context7-mcp@latest"
+        "mcp",
+        "gateway",
+        "run"
       ],
-      "alwaysAllow": [
-        "get-library-docs",
-        "resolve-library-id"
-      ]
-    },
-    "roo-code-memory-bank-mcp": {
-      "autoApprove": [
-        "initialize_memory_bank",
-        "check_memory_bank_status",
-        "read_memory_bank_file",
-        "append_memory_bank_entry"
-      ],
-      "disabled": false,
-      "timeout": 60,
-      "command": "node",
-      "args": [
-        "/Users/franziska/roo-code-memory-bank-mcp-server/dist/index.js"
-      ],
-      "env": {},
-      "transportType": "stdio",
-      "alwaysAllow": [
-        "check_memory_bank_status",
-        "initialize_memory_bank",
-        "read_memory_bank_file",
-        "append_memory_bank_entry"
-      ]
-    },
-    "brave-search": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-brave-search"
-      ],
-      "env": {
-        "BRAVE_API_KEY": "... api key here ..."
-      }
-    },
-    "fetch": {
-      "command": "uvx",
-      "args": [
-        "mcp-server-fetch"
-      ]
-    },
-    "git": {
-      "command": "uvx",
-      "args": [
-        "mcp-server-git"
-      ]
+      "type": "stdio"
     }
   }
 }

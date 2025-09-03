@@ -19,7 +19,7 @@ These rules are here to help us experiment, collaborate, and push boundaries. Le
 ---
 
 ### **3. Tools & Accounts**  
-- **Use Allowed Tools**: Le Chat, Claude, Roo Code, OpenRouter, MidJourney, and others.  
+- **Use Allowed Tools**: Le Chat, Claude, KiloCode, OpenRouter, MidJourney, and others.  
 - **Private Accounts**: Create accounts with personal emails (no company domains).  
 - **No Shared Keys**: Avoid sharing API keys. Use a shared key only if approved. For coding an API key will be provided.  
 

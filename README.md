@@ -17,7 +17,7 @@ This game is being developed as part of an **AI-First Hackathon**. The developme
     *   [`game_specs/game_mechanics.md`](game_specs/game_mechanics.md:): A detailed breakdown of core game mechanics, including energy collection, obstacle management, team roles, and AI integration.
     *   [`game_specs/implementation_plan.md`](game_specs/implementation_plan.md:): A phased development plan for the game.
 *   **`/everything_AI`**: Contains notes and resources related to AI concepts and tools used in the hackathon (e.g., LLM Key Concepts, MCP Server, Memory Bank).
-*   **`/roo code`**: Contains configuration files for AI assistant tooling (e.g., [`roo code/mcp_settings.json`](roo%20code/mcp_settings.json:), [`roo code/roo-code-settings.json`](roo%20code/roo-code-settings.json:)).
+*   **`/installation`**: Contains configuration files for AI assistant tooling (e.g., [`mcp_settings.json`](installation/mcp_settings.json:), [`kilo-code-settings.json`](installation/kilo-code-settings.json:)).
 *   **`/transcrips`**: (Likely "transcripts") Contains text versions of AI-related educational content which can be used to enrich prompts or start investigating the concepts.
 *   [`How to Play.md`](How%20to%20Play.md:): Guidelines and rules for the AI-First Hackathon.
 *   [`Videos.md`](Videos.md:): Relevant videos to watch.

@@ -20,7 +20,7 @@ This game is being developed as part of an **AI-First Hackathon**. The developme
     >- Encourage different perspectives and build on their responses
     >
     >Start by acknowledging what you all just watched together, highlight 2-3 main themes you noticed, and ask an engaging question to get the conversation going.
-    > Find the transcript is attached as file.
+    > Find the transcript attached as file.
 *   **Summary and golden nuggets** Create a insights summary of your conversation highlighting the main insights (golden nuggets). Save the summary in `/insights` as markdown file. Gather all groups, each group shares 1-3 golden nuggets and answer two questions. 
     *   *What assumption about how AI works turned out to be different from what you thought, and why does that matter?*
     *   *Based on what you learned, what's one thing people should start doing differently when working with AI?*

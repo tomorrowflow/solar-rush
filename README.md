@@ -5,7 +5,7 @@ Welcome to **Energy Rush: Solar Sprint**! This project is a cooperative game foc
 This game is being developed as part of an **AI-First Hackathon**. The development process emphasizes the use of AI tools for various tasks, from code generation to asset creation, following the guidelines outlined in [`How to Play.md`](How%20to%20Play.md:).
 
 ## AI Jump-Start
-*   **Goald of the session** Everyone experiences AI interaction on AI topics, the whole group will learn about the golden nuggets.
+*   **Goal of the session** Everyone experiences AI interaction on AI topics, the whole group will learn about the golden nuggets.
 *   **Understand AI on various levels** Create groups with mixed AI experience (AI engineer, AI user, AI enthusiast, AI newbees), quick exchange on the following topics: prompts, use cases that you tried
 *   **Transcribe video** Each group picks one ~15min video and watches it in a group. Pay attention to the time references if given, to keep it short and stay focussed. Create a video transcritpt via [`youtube-transcript.io`](http://youtube-transcript.io/). Hint: the download is accessable through the thee dots beside the *Copy Transcript*, do not include Time. Save the transcript in `/transcripts`.
 *   **Chat about video content** Feed the transcript into AI chat of your choice with the following prompt:
@@ -20,6 +20,7 @@ This game is being developed as part of an **AI-First Hackathon**. The developme
     >- Encourage different perspectives and build on their responses
     >
     >Start by acknowledging what you all just watched together, highlight 2-3 main themes you noticed, and ask an engaging question to get the conversation going.
+    > Find the transcript is attached as file.
 *   **Summary and golden nuggets** Create a insights summary of your conversation highlighting the main insights (golden nuggets). Save the summary in `/insights` as markdown file. Gather all groups, each group shares 1-3 golden nuggets and answer two questions. 
     *   *What assumption about how AI works turned out to be different from what you thought, and why does that matter?*
     *   *Based on what you learned, what's one thing people should start doing differently when working with AI?*
